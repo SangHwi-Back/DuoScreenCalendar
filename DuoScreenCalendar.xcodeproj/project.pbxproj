@@ -6,6 +6,10 @@
 	objectVersion = 110;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		1B9CA2C43087A27200D5CBA5 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 1B9CA2C33087A27200D5CBA5 /* README.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		1B9CA2223087A10D00D5CBA5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,7 @@
 		1B9CA2123087A10B00D5CBA5 /* DuoScreenCalendar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DuoScreenCalendar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1B9CA2213087A10D00D5CBA5 /* DuoScreenCalendarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DuoScreenCalendarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1B9CA22B3087A10D00D5CBA5 /* DuoScreenCalendarUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DuoScreenCalendarUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1B9CA2C33087A27200D5CBA5 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -69,6 +74,7 @@
 		1B9CA2093087A10B00D5CBA5 = {
 			isa = PBXGroup;
 			children = (
+				1B9CA2C33087A27200D5CBA5 /* README.md */,
 				1B9CA2143087A10B00D5CBA5 /* DuoScreenCalendar */,
 				1B9CA2243087A10D00D5CBA5 /* DuoScreenCalendarTests */,
 				1B9CA22E3087A10D00D5CBA5 /* DuoScreenCalendarUITests */,
@@ -197,6 +203,7 @@
 		1B9CA2103087A10B00D5CBA5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
+				1B9CA2C43087A27200D5CBA5 /* README.md in Resources */,
 			);
 		};
 		1B9CA21F3087A10D00D5CBA5 /* Resources */ = {
