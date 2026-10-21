@@ -12,42 +12,35 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     @Query private var items: [TodoDTO]
-
+    
+    @State private var hingeStatus: DeviceHinge.Status?
+    
+    @State private var todos = SampleData.todos
+    @State private var month = Date()
+    
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                            .foregroundStyle(AppColor.accentSoft.color(colorScheme: colorScheme))
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
+        Group {
+            switch hingeStatus {
+            case .fullyOpen:
+                LargeApp(todos: $todos, month: $month)
+            case .partiallyOpen:
+                SplitApp(todos: $todos, month: $month)
+            default:
+                CommonApp(todos: $todos, month: $month)
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
+        }
+        .onHingeChange { _, newContext in
+            self.hingeStatus = newContext.hinge?.status
         }
     }
-
+    
     private func addItem() {
         withAnimation {
             let newItem = TodoDTO(timestamp: Date())
             modelContext.insert(newItem)
         }
     }
-
+    
     private func deleteItems(offsets: IndexSet) {
         withAnimation {
             for index in offsets {

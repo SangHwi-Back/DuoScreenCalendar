@@ -58,9 +58,9 @@ public enum AppColor {
             
         case .scrim:
             return
-                colorScheme == .dark ?
-                    Color(red: 0, green: 0, blue: 0, opacity: 0.55) :
-                    Color(red: 34/255, green: 32/255, blue: 28/255, opacity: 0.30)
+            colorScheme == .dark ?
+            Color(red: 0, green: 0, blue: 0, opacity: 0.55) :
+            Color(red: 34/255, green: 32/255, blue: 28/255, opacity: 0.30)
             
         case .work:
             return colorScheme == .dark ? Color(hex: "#9DBBF0") : Color(hex: "#E1E8F4")
@@ -98,7 +98,7 @@ public extension Color {
             red: (Double(r) / Double(255)),
             green: (Double(g) / Double(255)),
             blue: (Double(b) / Double(255)),
-            opacity: Double(a)
+            opacity: Double(a) / Double(255)
         )
     }
 }
