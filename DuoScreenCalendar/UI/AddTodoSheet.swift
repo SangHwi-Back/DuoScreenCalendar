@@ -16,6 +16,7 @@ struct AddTodoSheet: View {
     }
     
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.hingeStatus) private var hingeStatus
     
     /// 목록이 보여주는 달. "N월 중" / "N년 중" 기간의 기준이 된다.
     let month: Date

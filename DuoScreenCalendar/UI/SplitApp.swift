@@ -24,7 +24,7 @@ struct SplitApp: View {
     
     var body: some View {
         ArrangementView {
-            TodoListView(todos: $todos, month: month, isAddingTodo: $isAddingTodo, pickedDate: $pickedDate)
+            TodoListView(todos: $todos, month: month, isAddingTodo: $isAddingTodo, pickedDate: $pickedDate, onTapList: { _ in })
         } secondary: {
             CalendarView(month: $month, todos: todos, holidays: SampleData.holidays,
                          selectedDate: $pickedDate, isSelectingDate: isAddingTodo)

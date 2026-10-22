@@ -42,7 +42,13 @@ enum TodoCategory {
 
 // MARK: - Items
 
-struct TodoItem: Identifiable {
+struct ChecklistItem: Identifiable {
+    let id = UUID()
+    var title: String
+    var isDone = false
+}
+
+struct TodoItem: Identifiable, Hashable {
     let id = UUID()
     var title: String
     /// 달력 칩처럼 좁은 곳에 쓰는 짧은 이름
@@ -56,6 +62,7 @@ struct TodoItem: Identifiable {
     /// true이면 `month`가 속한 해 전체에 걸친 할일이다 (날짜·달 미정).
     var isYearly = false
     var memo = ""
+    var checklist: [ChecklistItem] = []
     
     func subtitle() -> String {
         let monthNumber = CalendarSupport.calendar.component(.month, from: month)
@@ -70,6 +77,13 @@ struct TodoItem: Identifiable {
         let day = CalendarSupport.dayFormatter.string(from: dueDate)
         guard hasTime else { return day }
         return "\(day) · \(CalendarSupport.timeFormatter.string(from: dueDate))"
+    }
+    
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.id == rhs.id
+    }
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 
@@ -119,6 +133,17 @@ enum CalendarSupport {
     static func isCurrentMonth(_ date: Date) -> Bool {
         calendar.isDate(date, equalTo: Date(), toGranularity: .month)
     }
+
+    /// "이번 달" 또는 "N월"
+    static func monthLabel(for month: Date) -> String {
+        isCurrentMonth(month) ? "이번 달" : "\(calendar.component(.month, from: month))월"
+    }
+
+    /// 할일 추가 시트를 열 때 기본으로 선택되는 날짜: 이번 달이면 오늘, 아니면 그 달의 1일
+    static func defaultTodoDate(in month: Date) -> Date {
+        if isCurrentMonth(month) { return Date() }
+        return calendar.dateInterval(of: .month, for: month)?.start ?? month
+    }
     
     /// 한 달을 주 단위(7칸)로 나눈다. 달에 속하지 않는 칸은 nil이다.
     static func weeks(in month: Date) -> [[Date?]] {
@@ -145,7 +170,13 @@ enum SampleData {
     
     static let todos: [TodoItem] = [
         TodoItem(title: "분기 보고서 초안 작성", shortTitle: "보고서",
-                 dueDate: CalendarSupport.date(2026, 10, 22), month: october, category: .work),
+                 dueDate: CalendarSupport.date(2026, 10, 22), month: october, category: .work,
+                 memo: "3분기 매출·비용 요약과 다음 분기 계획을 함께 정리하기. 금요일 팀 회의 전에 공유.",
+                 checklist: [
+                    ChecklistItem(title: "3분기 매출 데이터 정리", isDone: true),
+                    ChecklistItem(title: "비용 항목 전년 대비 비교"),
+                    ChecklistItem(title: "다음 분기 계획 초안"),
+                 ]),
         TodoItem(title: "치과 정기검진", shortTitle: "치과",
                  dueDate: CalendarSupport.date(2026, 10, 24, hour: 15), hasTime: true,
                  month: october, category: .health),

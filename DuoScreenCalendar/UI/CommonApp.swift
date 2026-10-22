@@ -17,7 +17,7 @@ struct CommonApp: View {
     var body: some View {
         // 달력이 보이지 않는 레이아웃이라 시트가 날짜를 직접 고르게 한다.
         TodoListView(todos: $todos, month: month, isAddingTodo: $isAddingTodo,
-                     pickedDate: $pickedDate, linksToCalendar: false)
+                     pickedDate: $pickedDate, onTapList: { _ in }, linksToCalendar: false)
     }
 }
 

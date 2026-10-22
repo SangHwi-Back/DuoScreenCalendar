@@ -9,12 +9,14 @@ import SwiftUI
 
 struct TodoListView: View {
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.hingeStatus) private var hingeStatus
     @Binding var todos: [TodoItem]
     let month: Date
     /// 할일 추가 시트의 표시 여부. 날짜 선택 모드를 켜야 하는 달력과 부모를 통해 공유한다.
     @Binding var isAddingTodo: Bool
     /// 시트와 달력이 함께 쓰는 선택 날짜
     @Binding var pickedDate: Date?
+    var onTapList: (TodoItem) -> Void
     /// 옆에 달력이 보이는 레이아웃인지. false이면 시트가 날짜를 직접 고르게 한다.
     var linksToCalendar = true
     
@@ -22,7 +24,7 @@ struct TodoListView: View {
     
     private var calendar: Calendar { CalendarSupport.calendar }
     private var monthNumber: Int { calendar.component(.month, from: month) }
-    private var monthLabel: String { CalendarSupport.isCurrentMonth(month) ? "이번 달" : "\(monthNumber)월" }
+    private var monthLabel: String { CalendarSupport.monthLabel(for: month) }
     
     private var monthTodos: [TodoItem] {
         todos.filter {
@@ -30,11 +32,7 @@ struct TodoListView: View {
         }
     }
     
-    /// 시트를 열 때 기본으로 선택되는 날짜: 이번 달이면 오늘, 아니면 그 달의 1일
-    private var defaultDate: Date {
-        if CalendarSupport.isCurrentMonth(month) { return Date() }
-        return calendar.dateInterval(of: .month, for: month)?.start ?? month
-    }
+    private var defaultDate: Date { CalendarSupport.defaultTodoDate(in: month) }
     
     private var thisWeek: [TodoItem] {
         sortedByDate(monthTodos.filter { !$0.isDone && isThisWeek($0) })
@@ -60,25 +58,17 @@ struct TodoListView: View {
                 }
             }
             .scrollIndicators(.hidden)
-            
-            addButton
-                .padding(.top, 16)
         }
         .padding(.horizontal, 28)
         .padding(.vertical, 24)
         .background(tone(.paperBackground))
-        .overlay {
-            if isAddingTodo {
-                addTodoOverlay
-            }
-        }
         .toolbar {
-            ToolbarItem {
-                Button("Testing", systemImage: "questionmark.circle.dashed") {
-                    print("This is cancellationAction")
+            if hingeStatus == .closed {
+                ToolbarItem {
+                    TodoListAddButton(presentAddTodo: presentAddTodo, monthLabel: monthLabel, isCompact: false)
                 }
+                .axisBehavior(.verticalPreferred)
             }
-            .axisBehavior(.horizontalOnly)
         }
     }
     
@@ -234,23 +224,13 @@ struct TodoListView: View {
                 .background(chip.background, in: Capsule())
         }
         .padding(.vertical, 12)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            onTapList(item)
+        }
         .overlay(alignment: .bottom) {
             Rectangle().fill(tone(.line)).frame(height: 1)
         }
-    }
-    
-    // MARK: - Add button
-    
-    private var addButton: some View {
-        Button(action: presentAddTodo) {
-            Label("\(monthLabel) 할일 추가", systemImage: "plus")
-                .font(.headline)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .foregroundStyle(tone(.paperBackground))
-                .background(tone(.ink), in: Capsule())
-        }
-        .buttonStyle(.plain)
     }
     
     // MARK: - Helpers
@@ -279,14 +259,14 @@ struct TodoListView: View {
     @Previewable @State var todos = SampleData.todos
     @Previewable @State var isAdding = false
     @Previewable @State var pickedDate: Date?
-    TodoListView(todos: $todos, month: SampleData.october, isAddingTodo: $isAdding, pickedDate: $pickedDate)
+    TodoListView(todos: $todos, month: SampleData.october, isAddingTodo: $isAdding, pickedDate: $pickedDate, onTapList: { _ in })
 }
 
 #Preview("Dark") {
     @Previewable @State var todos = SampleData.todos
     @Previewable @State var isAdding = false
     @Previewable @State var pickedDate: Date?
-    TodoListView(todos: $todos, month: SampleData.october, isAddingTodo: $isAdding, pickedDate: $pickedDate)
+    TodoListView(todos: $todos, month: SampleData.october, isAddingTodo: $isAdding, pickedDate: $pickedDate, onTapList: { _ in })
         .preferredColorScheme(.dark)
 }
 
@@ -294,5 +274,5 @@ struct TodoListView: View {
     @Previewable @State var todos = SampleData.todos
     @Previewable @State var isAdding = true
     @Previewable @State var pickedDate: Date? = SampleData.october
-    TodoListView(todos: $todos, month: SampleData.october, isAddingTodo: $isAdding, pickedDate: $pickedDate)
+    TodoListView(todos: $todos, month: SampleData.october, isAddingTodo: $isAdding, pickedDate: $pickedDate, onTapList: { _ in })
 }

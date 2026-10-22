@@ -16,35 +16,181 @@ import SwiftUI
  */
 struct LargeApp: View {
     @Environment(\.overlayArrangementZIndex) var zIndex
+    @Environment(\.hingeStatus) private var hingeStatus
     
     @Binding var todos: [TodoItem]
     @Binding var month: Date
+    @State private var arrangementViewType = ArrangementViewType.overlay
     
     // 할일 추가 시트(TodoListView)와 날짜 선택 모드(CalendarView)가 공유하는 상태
     @State private var isAddingTodo = false
     @State private var pickedDate: Date?
     
+    @State private var isBeyondZero = false
+    
+    @State private var selectedItem: TodoItem?
+    @State private var path = NavigationPath([Path]())
+    
+    enum Path: Hashable {
+    case add(TodoItem)
+    }
+    
     var body: some View {
-        NavigationSplitView {
-            Color.pink.frame(width: 100, height: 100)
-        } detail: {
-            ArrangementView {
-                TodoListView(todos: $todos, month: month, isAddingTodo: $isAddingTodo, pickedDate: $pickedDate)
-                    .opacity(0.5)
-            } secondary: {
-                CalendarView(month: $month, todos: todos, holidays: SampleData.holidays,
-                             selectedDate: $pickedDate, isSelectingDate: isAddingTodo)
+        if arrangementViewType == .overlay {
+            NavigationStack(path: $path) {
+                GeometryReader { proxy in
+                    ArrangementView {
+                        VStack {
+                            Spacer()
+                            TodoListAddButton(
+                                presentAddTodo: presentAddTodo,
+                                monthLabel: CalendarSupport.monthLabel(for: month),
+                                isCompact: false
+                            )
+                            .safeAreaPadding()
+                        }
+                        .opacity(zIndex > 0 || isBeyondZero == false ? 1.0 : 0.0)
+                        .sheet(isPresented: $isAddingTodo) {
+                            AddTodoSheet(
+                                month: month,
+                                date: Binding(get: { pickedDate ?? CalendarSupport.defaultTodoDate(in: month) }, set: { pickedDate = $0 }),
+                                linksToCalendar: false,
+                                onCancel: {
+                                },
+                                onSave: { item in
+                                    withAnimation { todos.append(item) }
+                                }
+                            )
+                        }
+                    } secondary: {
+                        TodoListView(
+                            todos: $todos,
+                            month: month,
+                            isAddingTodo: $isAddingTodo,
+                            pickedDate: $pickedDate
+                        ) { item in
+                            self.path.append(Path.add(item))
+                        }
+                        .onScrollGeometryChange(for: Bool.self) { geometry in
+                            geometry.contentOffset.y < geometry.contentInsets.top
+                        } action: { wasBeyondZero, isBeyondZero in
+                            self.isBeyondZero = isBeyondZero
+                        }
+                    }
+                    .arrangementViewStyle(.overlay)
+                }
+                .navigationDestination(for: Path.self) { path in
+                    if case .add(let item) = path {
+                        TodoDetailView(todo: .constant(item)) {
+                            self.selectedItem = nil
+                        } onEdit: {
+                        } onDelete: {
+                        }
+                    }
+                }
+                .toolbar {
+                    if isBeyondZero {
+                        ToolbarItem(placement: .primaryAction) {
+                            TodoListAddButton(
+                                presentAddTodo: presentAddTodo,
+                                monthLabel: CalendarSupport.monthLabel(for: month),
+                                isCompact: true
+                            )
+                        }
+                    }
+                    
+                    ForEach(ArrangementViewType.allCases, id: \.self) { item in
+                        let isSelected = arrangementViewType == item
+                        ToolbarItem {
+                            Button(item.title, systemImage: item.systemImage) {
+                                withAnimation { arrangementViewType = item }
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityAddTraits(isSelected ? .isSelected : [])
+                        }
+                        .axisBehavior(.verticalPreferred)
+                    }
+                }
             }
-            .arrangementViewStyle(.overlay)
+        } else {
+            ArrangementView {
+                TodoListView(
+                    todos: $todos,
+                    month: month,
+                    isAddingTodo: $isAddingTodo,
+                    pickedDate: $pickedDate
+                ) { item in
+                    self.path.append(Path.add(item))
+                }
+            } secondary: {
+                NavigationStack(path: $path) {
+                    CalendarView(month: $month, todos: todos, holidays: SampleData.holidays,
+                                 selectedDate: $pickedDate, isSelectingDate: isAddingTodo)
+                    .navigationDestination(for: Path.self) { path in
+                        if case .add(let item) = path {
+                            TodoDetailView(todo: .constant(item)) {
+                                self.selectedItem = nil
+                            } onEdit: {
+                            } onDelete: {
+                            }
+                        }
+                    }
+                    .sheet(isPresented: $isAddingTodo) {
+                        AddTodoSheet(
+                            month: month,
+                            date: Binding(get: { pickedDate ?? CalendarSupport.defaultTodoDate(in: month) }, set: { pickedDate = $0 }),
+                            linksToCalendar: false,
+                            onCancel: {
+                            },
+                            onSave: { item in
+                                withAnimation { todos.append(item) }
+                            }
+                        )
+                    }
+                    .toolbar {
+                        ToolbarItem {
+                            TodoListAddButton(
+                                presentAddTodo: presentAddTodo,
+                                monthLabel: CalendarSupport.monthLabel(for: month),
+                                isCompact: true)
+                        }
+                        
+                        ForEach(ArrangementViewType.allCases, id: \.self) { item in
+                            let isSelected = arrangementViewType == item
+                            ToolbarItem {
+                                Button(item.title, systemImage: item.systemImage) {
+                                    withAnimation { arrangementViewType = item }
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityAddTraits(isSelected ? .isSelected : [])
+                            }
+                            .axisBehavior(.verticalPreferred)
+                        }
+                    }
+                }
+            }
+            .arrangementViewStyle(.split)
         }
+    }
+
+    /// 시트 자체는 사이드바의 TodoListView가 `isAddingTodo`를 보고 띄운다.
+    private func presentAddTodo() {
+        pickedDate = CalendarSupport.defaultTodoDate(in: month)
+        withAnimation { isAddingTodo = true }
     }
 }
 
 #Preview("Light") {
-    LargeApp(todos: Binding.constant(SampleData.todos), month: Binding.constant(Date()))
+    LargeApp(
+        todos: .constant(SampleData.todos),
+        month: .constant(Date())
+    )
 }
 
 #Preview("Dark") {
-    LargeApp(todos: Binding.constant(SampleData.todos), month: Binding.constant(Date()))
-        .preferredColorScheme(.dark)
+    LargeApp(
+        todos: .constant(SampleData.todos),
+        month: .constant(Date())
+    )
+    .preferredColorScheme(.dark)
 }
