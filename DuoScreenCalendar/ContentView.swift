@@ -14,11 +14,8 @@ struct ContentView: View {
     
     @State private var hingeStatus: DeviceHinge.Status?
     
-    @State private var todos = SampleData.todos
-    @State private var month = Date()
-    
     var body: some View {
-        LargeApp(todos: $todos, month: $month)
+        LargeApp(todos: SampleData.todos, month: Date())
             .environment(\.hingeStatus, hingeStatus)
             .onHingeChange { _, newContext in
                 self.hingeStatus = newContext.hinge?.status

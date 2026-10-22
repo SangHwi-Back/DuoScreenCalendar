@@ -62,14 +62,14 @@ struct TodoListView: View {
         .padding(.horizontal, 28)
         .padding(.vertical, 24)
         .background(tone(.paperBackground))
-        .toolbar {
-            if hingeStatus == .closed {
-                ToolbarItem {
-                    TodoListAddButton(presentAddTodo: presentAddTodo, monthLabel: monthLabel, isCompact: false)
-                }
-                .axisBehavior(.verticalPreferred)
-            }
-        }
+//        .toolbar {
+//            if hingeStatus == .closed {
+//                ToolbarItem {
+//                    TodoListAddButton(presentAddTodo: presentAddTodo, monthLabel: monthLabel, isCompact: false)
+//                }
+//                .axisBehavior(.verticalPreferred)
+//            }
+//        }
     }
     
     // MARK: - Add todo sheet
