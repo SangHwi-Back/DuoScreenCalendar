@@ -72,6 +72,14 @@ struct TodoListView: View {
                 addTodoOverlay
             }
         }
+        .toolbar {
+            ToolbarItem {
+                Button("Testing", systemImage: "questionmark.circle.dashed") {
+                    print("This is cancellationAction")
+                }
+            }
+            .axisBehavior(.horizontalOnly)
+        }
     }
     
     // MARK: - Add todo sheet

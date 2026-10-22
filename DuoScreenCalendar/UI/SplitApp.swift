@@ -7,6 +7,13 @@
 
 import SwiftUI
 
+/**
+ NavigationSplitView 와 다른 건 2개
+ - 왼쪽 화면을 숨김 처리할 수 없다.
+ - 완전히 편 상태로 세로로 볼 경우 위 아래로 화면이 나뉜다.
+ 언제나 두 개의 화면을 보여주고 싶다면 이걸 쓰면 된다.
+ 접었을 때는 첫번째 정의한 화면이 보일 것이며 아래 예시에선 TodoListView 만 보일 것이다.
+ */
 struct SplitApp: View {
     @Binding var todos: [TodoItem]
     @Binding var month: Date

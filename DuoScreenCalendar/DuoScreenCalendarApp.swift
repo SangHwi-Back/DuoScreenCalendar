@@ -25,7 +25,19 @@ struct DuoScreenCalendarApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            TabView {
+                Tab("Content1", systemImage: "rectangle", role: .prominent) {
+                    ContentView()
+                }
+                .tabPlacement(.pinned)
+                Tab("Content2", systemImage: "rectangle.split.2x1.fill", role: .search) {
+                    ContentView()
+                }
+                .tabPlacement(.pinned)
+                Tab("Content3", systemImage: "rectangle.split.3x1.fill") {
+                    ContentView()
+                }
+            }
         }
         .modelContainer(sharedModelContainer)
     }

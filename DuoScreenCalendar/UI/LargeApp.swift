@@ -7,6 +7,13 @@
 
 import SwiftUI
 
+/**
+ ArrangementView overlay 는 첫번째 화면은 덮을 화면, 두번째 화면은 아래 깔리는 화면이다.
+ 폰이 반쯤 접힐 경우 2개의 케이스가 존재한다.
+ - 가로 상태일 경우 첫번째 두번째 화면은 겹친다.
+ - 세로 상태일 경우 첫번째 화면은 아래로 내려가고 두번째 화면은 위로 올라간다.
+ NavigationSplitView 를 긍정적으로 고려하면 좋겠다. left Pane 을 닫을 수 있도록 해준다.
+ */
 struct LargeApp: View {
     @Environment(\.overlayArrangementZIndex) var zIndex
     
@@ -19,11 +26,11 @@ struct LargeApp: View {
     
     var body: some View {
         NavigationSplitView {
-            TodoListView(todos: $todos, month: month, isAddingTodo: $isAddingTodo, pickedDate: $pickedDate)
+            Color.pink.frame(width: 100, height: 100)
         } detail: {
             ArrangementView {
-                CalendarView(month: $month, todos: todos, holidays: SampleData.holidays,
-                             selectedDate: $pickedDate, isSelectingDate: isAddingTodo)
+                TodoListView(todos: $todos, month: month, isAddingTodo: $isAddingTodo, pickedDate: $pickedDate)
+                    .opacity(0.5)
             } secondary: {
                 CalendarView(month: $month, todos: todos, holidays: SampleData.holidays,
                              selectedDate: $pickedDate, isSelectingDate: isAddingTodo)

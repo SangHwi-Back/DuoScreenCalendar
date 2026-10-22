@@ -11,14 +11,28 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
+    
+    @Environment(\.horizontalSizeClass)
+    private var horizontalSizeClass
+    @Environment(\.verticalSizeClass)
+    private var verticalSizeClass
+    
     @Query private var items: [TodoDTO]
     
     @State private var hingeStatus: DeviceHinge.Status?
     
+    @State private var isAddingTodo = false
+    @State private var pickerDate: Date?
     @State private var todos = SampleData.todos
     @State private var month = Date()
     
     var body: some View {
+//        NavigationSplitView {
+//            TodoListView(todos: $todos, month: .init(), isAddingTodo: $isAddingTodo, pickedDate: $pickerDate, linksToCalendar: true)
+//        } detail: {
+//            CalendarView(month: $month, todos: todos, holidays: SampleData.holidays, selectedDate: $pickerDate, isSelectingDate: true)
+//        }
+        
         Group {
             switch hingeStatus {
             case .fullyOpen:

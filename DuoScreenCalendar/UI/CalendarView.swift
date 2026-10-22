@@ -57,6 +57,32 @@ struct CalendarView: View {
         .overlay(alignment: .leading) {
             Rectangle().fill(tone(.line)).frame(width: 1)
         }
+        .toolbar {
+            ForEach(Mode.allCases, id: \.self) { item in
+                let isSelected = mode == item
+                ToolbarItem {
+                    Button {
+                        withAnimation { mode = item }
+                    } label: {
+                        Text(item.title)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(isSelected ? tone(.ink) : tone(.muted))
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background {
+                                if isSelected {
+                                    Capsule()
+                                        .fill(tone(.cardSurface))
+                                        .shadow(color: .black.opacity(0.12), radius: 3, y: 1)
+                                }
+                            }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(isSelected ? .isSelected : [])
+                }
+                .axisBehavior(.horizontalOnly)
+            }
+        }
     }
     
     // MARK: - Header
@@ -82,36 +108,39 @@ struct CalendarView: View {
             
             Spacer()
             
-            modePicker
+//            modePicker
         }
     }
     
     private var modePicker: some View {
-        HStack(spacing: 0) {
-            ForEach(Mode.allCases, id: \.self) { item in
-                let isSelected = mode == item
-                Button {
-                    withAnimation { mode = item }
-                } label: {
-                    Text(item.title)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(isSelected ? tone(.ink) : tone(.muted))
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background {
-                            if isSelected {
-                                Capsule()
-                                    .fill(tone(.cardSurface))
-                                    .shadow(color: .black.opacity(0.12), radius: 3, y: 1)
+        HStack {
+            Spacer()
+            Picker("Mode", selection: $mode) {
+                ForEach(Mode.allCases, id: \.self) { item in
+                    let isSelected = mode == item
+                    Button {
+                        withAnimation { mode = item }
+                    } label: {
+                        Text(item.title)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(isSelected ? tone(.ink) : tone(.muted))
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background {
+                                if isSelected {
+                                    Capsule()
+                                        .fill(tone(.cardSurface))
+                                        .shadow(color: .black.opacity(0.12), radius: 3, y: 1)
+                                }
                             }
-                        }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(isSelected ? .isSelected : [])
                 }
-                .buttonStyle(.plain)
-                .accessibilityAddTraits(isSelected ? .isSelected : [])
             }
+            .pickerStyle(.segmented)
+            .frame(width: 120)
         }
-        .padding(4)
-        .background(tone(.sunk), in: Capsule())
     }
     
     // MARK: - Month grid
